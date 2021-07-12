@@ -15,4 +15,35 @@ function snakeCase(str: string) {
     .join('_')
 }
 
-export { kebabCase, snakeCase }
+function isNil(val: unknown): boolean {
+  return val === undefined || val === null || val !== val
+}
+
+function compact(...args: any[]): any[] {
+  return args.filter(Boolean)
+}
+
+function mapKeys(obj: Record<string, unknown>, fn: (k: string) => string) {
+  return Object.keys(obj).reduce((acc: Record<string, unknown>, k) => {
+    acc[fn(k)] = obj[k]
+    return acc
+  }, {})
+}
+
+function omitBy(
+  fn: (v: unknown) => boolean,
+  obj: Record<string, unknown>,
+): Record<string, unknown> {
+  const filtered = Object.entries(obj).filter(([_k, v]) => !fn(v))
+  return Object.fromEntries(filtered)
+}
+
+function identity<T>(a: T): T {
+  return a
+}
+
+function join(separator: string, ...args: unknown[]) {
+  return compact(...args).join(separator)
+}
+
+export { identity, isNil, join, kebabCase, mapKeys, omitBy, snakeCase }
