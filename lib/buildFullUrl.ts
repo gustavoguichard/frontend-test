@@ -1,40 +1,48 @@
 import type { Options, QueryStringObj } from '../types'
 import { identity, isNil, join, kebabCase, mapKeys, omitBy } from './helpers'
 
-function joinUrl(...args: string[]) {
-  return join('?', ...args)
+const normalizeUrl = (url: string): string =>
+  url
     .replace(/[\/]+/g, '/')
     .replace(/^(.+):\//, '$1://')
     .replace(/\/(\?|&)/g, '$1')
     .replace(/\/$/, '')
-}
 
-function normalizeQueryString(opts: Options): QueryStringObj {
-  const parser = opts.queryStringParser || identity
-  const filtered = omitBy(isNil, opts.query || {})
-  return mapKeys(filtered, parser) as QueryStringObj
-}
+const filterQuery = (query?: QueryStringObj): QueryStringObj =>
+  omitBy(isNil, query ?? {}) as QueryStringObj
 
-function stringifyQueryString(query: QueryStringObj) {
-  return Object.entries(query)
+const parseKeys = (opts: Options, query: QueryStringObj): QueryStringObj =>
+  mapKeys(query, opts.queryStringParser || identity)
+
+const normalizeQueryString = (opts: Options): QueryStringObj =>
+  parseKeys(opts, filterQuery(opts.query))
+
+const stringifyQueryString = (query: QueryStringObj): string =>
+  Object.entries(query)
     .map(([key, val]) =>
       Array.isArray(val)
         ? val.map((v) => `${key}[]=${v}`).join('&')
         : `${key}=${val}`,
     )
     .join('&')
-}
 
-function buildUrl(opts: Options): string {
+const getGeneratedPath = (opts: Options): string => {
   const name = (opts.urlParser || kebabCase)(opts.name || '')
-  const id = opts.id ? String(opts.id) : ':id'
-  const path = opts.customPath || join('/', name, opts.id)
-  return join('/', opts.baseUrl || '', path).replace(/\:id/g, id)
+  return join('/', name, opts.id)
 }
 
-export default function buildFullUrl(opts: Options) {
-  const url = buildUrl(opts)
+const getCustomPath = (opts: Options): string => {
+  const id = opts.id ? String(opts.id) : ':id'
+  return opts.customPath?.replace(/\:id/g, id) || ''
+}
+
+const buildUrl = (opts: Options): string => {
+  const path = getCustomPath(opts) || getGeneratedPath(opts)
+  return join('/', opts.baseUrl, path)
+}
+
+export default function buildFullUrl(opts: Options): string {
   const query = normalizeQueryString(opts)
-  const queryString = stringifyQueryString(query)
-  return joinUrl(url, queryString)
+  const url = join('?', buildUrl(opts), stringifyQueryString(query))
+  return normalizeUrl(url)
 }

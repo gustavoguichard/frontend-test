@@ -4,12 +4,12 @@ function wordsFromAnyCase(str: string): string[] {
 
   return str.match(CASE_REGEX) || []
 }
-function kebabCase(str: string) {
+function kebabCase(str: string): string {
   return wordsFromAnyCase(str)
     .map((x) => x.toLowerCase())
     .join('-')
 }
-function snakeCase(str: string) {
+function snakeCase(str: string): string {
   return wordsFromAnyCase(str)
     .map((x) => x.toLowerCase())
     .join('_')
@@ -19,21 +19,24 @@ function isNil(val: unknown): boolean {
   return val === undefined || val === null || val !== val
 }
 
-function compact(...args: any[]): any[] {
+function compact<T>(...args: T[]): T[] {
   return args.filter(Boolean)
 }
 
-function mapKeys(obj: Record<string, unknown>, fn: (k: string) => string) {
-  return Object.keys(obj).reduce((acc: Record<string, unknown>, k) => {
+function mapKeys<T>(
+  obj: Record<string, T>,
+  fn: (k: string) => string,
+): Record<string, T> {
+  return Object.keys(obj).reduce((acc: Record<string, T>, k) => {
     acc[fn(k)] = obj[k]
     return acc
   }, {})
 }
 
-function omitBy(
-  fn: (v: unknown) => boolean,
-  obj: Record<string, unknown>,
-): Record<string, unknown> {
+function omitBy<T>(
+  fn: (v: T) => boolean,
+  obj: Record<string, T>,
+): Record<string, T> {
   const filtered = Object.entries(obj).filter(([_k, v]) => !fn(v))
   return Object.fromEntries(filtered)
 }
@@ -42,7 +45,7 @@ function identity<T>(a: T): T {
   return a
 }
 
-function join(separator: string, ...args: unknown[]) {
+function join(separator: string, ...args: unknown[]): string {
   return compact(...args).join(separator)
 }
 
