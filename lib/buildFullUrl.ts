@@ -12,7 +12,7 @@ const filterQuery = (query?: QueryStringObj): QueryStringObj =>
   omitBy(isNil, query ?? {}) as QueryStringObj
 
 const normalizeQueryString = (opts: Options): QueryStringObj =>
-  mapKeys(opts.queryStringParser || identity, filterQuery(opts.query))
+  mapKeys(opts.queryStringParser ?? identity, filterQuery(opts.query))
 
 const stringifyQueryString = (query: QueryStringObj): string =>
   Object.entries(query)
@@ -24,17 +24,17 @@ const stringifyQueryString = (query: QueryStringObj): string =>
     .join('&')
 
 const getGeneratedPath = (opts: Options): string => {
-  const name = (opts.urlParser || kebabCase)(opts.name || '')
+  const name = (opts.urlParser ?? kebabCase)(opts.name ?? '')
   return join('/', name, opts.id)
 }
 
-const getCustomPath = (opts: Options): string => {
+const getCustomPath = (opts: Options): string | null => {
   const id = opts.id ? String(opts.id) : ':id'
-  return opts.customPath?.replace(/\:id/g, id) || ''
+  return opts.customPath?.replace(/\:id/g, id) ?? null
 }
 
 const buildUrl = (opts: Options): string => {
-  const path = getCustomPath(opts) || getGeneratedPath(opts)
+  const path = getCustomPath(opts) ?? getGeneratedPath(opts)
   return join('/', opts.baseUrl, path)
 }
 
