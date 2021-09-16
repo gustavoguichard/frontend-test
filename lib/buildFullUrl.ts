@@ -11,11 +11,8 @@ const normalizeUrl = (url: string): string =>
 const filterQuery = (query?: QueryStringObj): QueryStringObj =>
   omitBy(isNil, query ?? {}) as QueryStringObj
 
-const parseKeys = (opts: Options, query: QueryStringObj): QueryStringObj =>
-  mapKeys(query, opts.queryStringParser || identity)
-
 const normalizeQueryString = (opts: Options): QueryStringObj =>
-  parseKeys(opts, filterQuery(opts.query))
+  mapKeys(opts.queryStringParser || identity, filterQuery(opts.query))
 
 const stringifyQueryString = (query: QueryStringObj): string =>
   Object.entries(query)

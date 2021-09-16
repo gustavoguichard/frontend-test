@@ -24,8 +24,8 @@ function compact<T>(...args: T[]): T[] {
 }
 
 function mapKeys<T>(
-  obj: Record<string, T>,
   fn: (k: string) => string,
+  obj: Record<string, T>,
 ): Record<string, T> {
   return Object.keys(obj).reduce((acc: Record<string, T>, k) => {
     acc[fn(k)] = obj[k]
